@@ -1,76 +1,137 @@
-# Sarcasm Detection Application
+---
+title: Sarcasm Headline Detector
+emoji: 📰
+colorFrom: red
+colorTo: orange
+sdk: streamlit
+sdk_version: 1.32.0
+app_file: app.py
+pinned: false
+license: mit
+---
 
-This project is a sarcasm detection application built using Streamlit, TensorFlow, and Keras. The application aims to identify sarcastic comments in text data.
+# 📰 Sarcasm Headline Detector
 
-## Project Structure
+Bi-LSTM + GloVe classifier for **news headlines** (sarcastic vs. real news).  
+Production Streamlit app with MLOps health monitoring.
 
-```
-sarcasm-detector
-├── data
-│   ├── raw
-│   └── processed
-├── src
-│   ├── app.py
-│   ├── config.py
-│   ├── components
-│   │   └── __init__.py
-│   ├── models
-│   │   ├── model.py
-│   │   └── train.py
-│   ├── preprocessing
-│   │   └── tokenizer.py
-│   └── utils
-│       └── io.py
-├── notebooks
-│   └── exploration.ipynb
-├── tests
-│   └── test_model.py
-├── requirements.txt
-├── pyproject.toml
-├── .gitignore
-└── README.md
-```
+## Live demo
 
-## Installation
+| Platform | Action |
+|----------|--------|
+| **Streamlit Community Cloud** | Deploy from GitHub → [share.streamlit.io](https://share.streamlit.io) |
+| **Hugging Face Spaces** | New Space → SDK **Streamlit** → link this repo |
 
-To set up the project, clone the repository and install the required dependencies:
+Replace the URLs below after your first deploy:
+
+- Streamlit Cloud: `https://<your-app>.streamlit.app`
+- Hugging Face: `https://huggingface.co/spaces/<user>/<space-name>`
+
+## Run locally
 
 ```bash
-git clone <repository-url>
-cd sarcasm-detector
+git clone https://github.com/<your-user>/Sarcasm_Detection.git
+cd Sarcasm_Detection
 pip install -r requirements.txt
+streamlit run app.py
 ```
 
-## Usage
+Required artifacts (must be in the repo for cloud deploy):
 
-To run the Streamlit application, execute the following command:
+```
+Sarcasm_Detection/
+├── app.py
+├── requirements.txt
+├── tokenizer_sarcasm.pkl
+└── model/
+    └── sarcasm_detector.keras   # ~45 MB
+```
+
+> Install **only** `tensorflow-cpu`, not the full `tensorflow` package (avoids conflicts and segfaults).
+
+## Deploy on Streamlit Community Cloud (~5 min)
+
+1. Push the project to **GitHub** (include `app.py`, `requirements.txt`, `tokenizer_sarcasm.pkl`, `model/sarcasm_detector.keras`, `monitoring.py`).
+2. Go to [share.streamlit.io](https://share.streamlit.io) → **New app**.
+3. Select your repo, branch `main`, **Main file path**: `app.py`.
+4. Click **Deploy**. First build may take 5–10 min (TensorFlow CPU install).
+5. Copy the public URL (`https://<name>.streamlit.app`).
+
+**Settings checklist**
+
+| Field | Value |
+|-------|--------|
+| Main file | `app.py` |
+| Python version | 3.10 (default) |
+| Secrets | None required |
+
+Health monitoring is available in the **sidebar** (JSON payload: version, training date, validation accuracy, asset status).
+
+## Deploy on Hugging Face Spaces
+
+1. [huggingface.co/new-space](https://huggingface.co/new-space) → **Streamlit** SDK.
+2. Connect the same GitHub repo (or upload files).
+3. Ensure `README.md` contains the YAML frontmatter at the top (already configured in this repo).
+4. `app_file` in the frontmatter must be `app.py`.
+5. Wait for the build; open the Space URL.
+
+Files over 50 MB total may require [Git LFS](https://git-lfs.github.com/) for `model/sarcasm_detector.keras`.
+
+## MLOps — `/health` endpoint (optional)
+
+Streamlit has no HTTP routes. For a standard REST health check (load balancers, Kubernetes, TP grid “production quality”):
 
 ```bash
-streamlit run src/app.py
+pip install -r requirements-health.txt
+python health_api.py
+# GET http://localhost:8080/health
 ```
 
-Once the application is running, you can input text into the provided field and click the prediction button to see if the comment is sarcastic.
+Example response:
 
-## Data
+```json
+{
+  "status": "ok",
+  "model_version": "v1.0",
+  "architecture": "Bi-LSTM + GloVe",
+  "trained_on": "2026-05-18",
+  "accuracy_val": 0.87,
+  "assets": {
+    "model_file": "sarcasm_detector.keras",
+    "model_present": true,
+    "tokenizer_present": true
+  }
+}
+```
 
-The raw dataset files should be placed in the `data/raw` directory. After preprocessing, the processed dataset files will be stored in the `data/processed` directory.
+In the Streamlit UI, the same payload appears under **🩺 System health** in the sidebar.
 
 ## Model
 
-The model architecture is defined in `src/models/model.py`, and the training pipeline is implemented in `src/models/train.py`. The model is a Bidirectional LSTM designed to classify text as sarcastic or not.
+| Property | Value |
+|----------|--------|
+| Architecture | Bi-LSTM (64+32) + GloVe embeddings |
+| Vocab size | 20 000 |
+| Max sequence length | 40 |
+| Validation accuracy | ~0.87 (last training epoch) |
+| Training notebook | `notebooks/projet_groupe.ipynb` |
 
-## Preprocessing
+## Project structure
 
-Text data is preprocessed in `src/preprocessing/tokenizer.py`, which includes loading the dataset, cleaning the text, tokenizing, and padding sequences.
-
-## Testing
-
-Unit tests for the model can be found in `tests/test_model.py`. Ensure that the model functions as expected by running the tests.
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+```
+├── app.py                  # Streamlit production UI
+├── monitoring.py           # Shared health metadata
+├── health_api.py           # Optional Flask /health
+├── requirements.txt        # Streamlit Cloud dependencies
+├── tokenizer_sarcasm.pkl
+├── model/
+│   └── sarcasm_detector.keras
+├── notebooks/
+│   └── projet_groupe.ipynb
+└── .streamlit/
+    └── config.toml
+```
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for more details.
+MIT
