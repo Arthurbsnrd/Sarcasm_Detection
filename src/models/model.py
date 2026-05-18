@@ -13,9 +13,9 @@ class SarcasmDetectorModel:
     def build_model(self):
         model = Sequential()
         model.add(Embedding(input_dim=self.vocab_size, output_dim=self.embedding_dim, input_length=self.max_length))
-        model.add(Bidirectional(LSTM(64, return_sequences=True)))
-        model.add(Dropout(0.5))
         model.add(Bidirectional(LSTM(32)))
+        model.add(Dense(24, activation='relu'))
+        model.add(Dropout(0.3))
         model.add(Dense(1, activation='sigmoid'))
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
         return model
@@ -30,3 +30,15 @@ class SarcasmDetectorModel:
     def predict(self, X):
         padded_sequences = pad_sequences(X, maxlen=self.max_length, padding='post')
         return self.model.predict(padded_sequences)
+
+
+def create_model(vocab_size: int = 10000, embedding_dim: int = 50, max_length: int = 100):
+    """Utility function used by scripts and tests to get a compiled Keras model."""
+    m = Sequential()
+    m.add(Embedding(input_dim=vocab_size, output_dim=embedding_dim, input_length=max_length))
+    m.add(Bidirectional(LSTM(32)))
+    m.add(Dense(24, activation='relu'))
+    m.add(Dropout(0.3))
+    m.add(Dense(1, activation='sigmoid'))
+    m.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    return m
