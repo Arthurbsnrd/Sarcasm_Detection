@@ -1,5 +1,5 @@
-# Streamlit Cloud — CPU-only TensorFlow for lighter deploys
-streamlit>=1.32.0,<2.0.0
-tensorflow-cpu>=2.17.0,<2.18.0
-numpy>=1.26.0,<2.0.0
-scikit-learn>=1.4.0,<2.0.0
+# Streamlit Cloud — use Python 3.10 or 3.11 in app Advanced settings
+streamlit==1.41.1
+tensorflow-cpu==2.17.1
+numpy==1.26.4
+protobuf==4.25.8

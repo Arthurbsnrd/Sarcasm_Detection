@@ -62,8 +62,14 @@ Sarcasm_Detection/
 | Field | Value |
 |-------|--------|
 | Main file | `app.py` |
-| Python version | 3.10 (default) |
+| Python version | **3.10** or **3.11** (Advanced settings — required for TensorFlow) |
 | Secrets | None required |
+
+**If install fails** (`installer returned a non-zero exit code`):
+
+1. App menu **⋮** → **Settings** → **Advanced** → set **Python 3.10** (not 3.13).
+2. Ensure only `requirements.txt` is used (no `pyproject.toml` with old `tensorflow`).
+3. **Reboot app** after pushing dependency fixes.
 
 Health monitoring is available in the **sidebar** (JSON payload: version, training date, validation accuracy, asset status).
 
