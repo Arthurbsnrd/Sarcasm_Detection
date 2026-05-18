@@ -12,6 +12,7 @@ def load_json_dataset(path):
     if path.endswith('.csv'):
         return pd.read_csv(path)
     # assume json lines
+    import json
     records = []
     with open(path, 'r', encoding='utf-8') as f:
         for line in f:
@@ -19,12 +20,13 @@ def load_json_dataset(path):
             if not line:
                 continue
             try:
-                records.append(pd.read_json(line, typ='series'))
+                obj = json.loads(line)
+                records.append(obj)
             except Exception:
-                # fallback: skip malformed lines
+                # skip malformed lines
                 continue
     if records:
-        return pd.DataFrame(records)
+        return pd.DataFrame.from_records(records)
     return pd.DataFrame()
 
 
